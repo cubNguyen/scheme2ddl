@@ -10,3 +10,6 @@ dependency-reduced-pom.xml
 buildNumber.properties
 output
 scheme2ddl.iml
+/.settings/
+/src/test/
+/src/test/resources/

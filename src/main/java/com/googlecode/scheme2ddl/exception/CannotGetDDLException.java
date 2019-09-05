@@ -6,7 +6,10 @@ package com.googlecode.scheme2ddl.exception;
  */
 public class CannotGetDDLException extends Exception {
 
-    public CannotGetDDLException(Throwable cause) {
-        super(cause);
+    public CannotGetDDLException() {
+        super();
     }
+	public CannotGetDDLException(Throwable cause) {
+		super(cause);
+	}
 }

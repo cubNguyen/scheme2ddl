@@ -11,18 +11,18 @@ import java.util.List;
  */
 public class ConnectionDaoImpl extends JdbcDaoSupport implements ConnectionDao {
 
-    public boolean isConnectionAvailable() {
-        try {
-            getJdbcTemplate().queryForObject("select 1 from dual", Integer.class) ;
-        } catch (DataAccessException e) {
-            return false;
-        }
-        return true;
-    }
+	public boolean isConnectionAvailable() {
+		try {
+			getJdbcTemplate().queryForObject("select 1 from dual", Integer.class);
+		} catch (DataAccessException e) {
+			return false;
+		}
+		return true;
+	}
 
-    public boolean hasSelectCatalogRole() {
-        List list = getJdbcTemplate().queryForList("select 1 from session_roles where role = 'SELECT_CATALOG_ROLE'");
-        return  (list.size() == 1);
-    }
+	public boolean hasSelectCatalogRole() {
+		List list = getJdbcTemplate().queryForList("select 1 from session_roles where role = 'SELECT_CATALOG_ROLE'");
+		return (list.size() == 1);
+	}
 
 }

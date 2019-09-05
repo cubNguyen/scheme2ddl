@@ -6,61 +6,55 @@ package com.googlecode.scheme2ddl.domain;
  */
 public class UserObject {
 
-    private String name;
-    private String type;
-    private String schema;
-    private String ddl;
-    private String fileName;
+	private String name;
+	private String type;
+	private String schema;
+	private String ddl;
+	private String fileName;
 
+	public String getName() {
+		return name;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public String getType() {
+		return type;
+	}
 
-    public String getType() {
-        return type;
-    }
+	public String getSchema() {
+		return schema;
+	}
 
-    public String getSchema() {
-        return schema;
-    }
+	public void setType(String type) {
+		this.type = type;
+	}
 
-    public void setType(String type) {
-        this.type = type;
-    }
+	public void setSchema(String schema) {
+		this.schema = schema;
+	}
 
-    public void setSchema(String schema) {
-        this.schema = schema;
-    }
+	public String getDdl() {
+		return ddl;
+	}
 
-    public String getDdl() {
-        return ddl;
-    }
+	public void setDdl(String ddl) {
+		this.ddl = ddl;
+	}
 
-    public void setDdl(String ddl) {
-        this.ddl = ddl;
-    }
+	public String getFileName() {
+		return fileName;
+	}
 
-    public String getFileName() {
-        return fileName;
-    }
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
-
-
-    @Override
-    public String toString() {
-        return "UserObject{" +
-                "name='" + name + '\'' +
-                ", type='" + type + '\'' +
-                ", schema='" + schema + '\'' +
-                ", ddl='" + ddl + '\'' +
-                '}';
-    }
+	@Override
+	public String toString() {
+		return "UserObject{" + "name='" + name + '\'' + ", type='" + type + '\'' + ", schema='" + schema + '\''
+				+ ", ddl='" + ddl + '\'' + '}';
+	}
 }

@@ -5,8 +5,10 @@ package com.googlecode.scheme2ddl.exception;
  * @since Date: 03.07.2013
  */
 public class NonSkippableException extends Exception {
-
-    public NonSkippableException(Throwable cause) {
-        super(cause);
+    public NonSkippableException() {
     }
+
+	public NonSkippableException(Throwable cause) {
+		super(cause);
+	}
 }

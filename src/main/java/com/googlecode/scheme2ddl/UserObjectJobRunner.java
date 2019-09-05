@@ -17,66 +17,81 @@ import java.util.Map;
  * @since Date: 22.10.2012
  */
 public class UserObjectJobRunner {
-    protected static final Log logger = LogFactory.getLog(UserObjectJobRunner.class);
-    private JobLauncher launcher;
+	protected static final Log logger = LogFactory.getLog(UserObjectJobRunner.class);
+	private JobLauncher launcher;
 
-    int start(ConfigurableApplicationContext context, boolean launchedByDBA, String objectFilter, String typeFilter, String typeFilterMode) throws Exception {
-        try {
-            context.getAutowireCapableBeanFactory().autowireBeanProperties(this,
-                    AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, false);
+	int start(ConfigurableApplicationContext context, boolean launchedByDBA, String objectFilter, String typeFilter,
+			String typeFilterMode, String ddlTimeAfter, String ddlTimeBefore, String ddlTimeIn) throws Exception {
+		try {
+			context.getAutowireCapableBeanFactory().autowireBeanProperties(this,
+					AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, false);
 
-            Assert.state(launcher != null, "A JobLauncher must be provided.  Please add one to the configuration.");
-            Job job = (Job) context.getBean("job1");
+			Assert.state(launcher != null, "A JobLauncher must be provided.  Please add one to the configuration.");
+			Job job = (Job) context.getBean("job1");
 
-            List<String> schemaList = (List<String>) context.getBean("schemaList");
-            Assert.state(schemaList != null && schemaList.size()!=0, "schemaList must be provided.  Please add one to the configuration. ");
+			List<String> schemaList = (List<String>) context.getBean("schemaList");
+			Assert.state(schemaList != null && schemaList.size() != 0,
+					"schemaList must be provided.  Please add one to the configuration. ");
 
-            logger.info(String.format("Will try to process schema %s %s ", schemaList.size() > 1 ? "list" : "", schemaList));
+			logger.info(String.format("Will try to process schema %s %s ", schemaList.size() > 1 ? "list" : "",
+					schemaList));
 
-            for (String schemaName : schemaList){
-                JobParametersBuilder parametersBuilder = new JobParametersBuilder();
-                parametersBuilder.addString("schemaName", schemaName);
-                parametersBuilder.addString("launchedByDBA", Boolean.toString(launchedByDBA));
+			for (String schemaName : schemaList) {
+				JobParametersBuilder parametersBuilder = new JobParametersBuilder();
+				parametersBuilder.addString("schemaName", schemaName);
+				parametersBuilder.addString("launchedByDBA", Boolean.toString(launchedByDBA));
 				parametersBuilder.addString("objectFilter", objectFilter);
 				parametersBuilder.addString("typeFilter", typeFilter);
 				parametersBuilder.addString("typeFilterMode", typeFilterMode);
-                JobParameters jobParameters = parametersBuilder.toJobParameters();
-                logger.trace(String.format("Start spring batch job with parameters %s", jobParameters));
-                JobExecution jobExecution = launcher.run(job, jobParameters);
-                //write some log
-                writeJobExecutionStatus(jobExecution, jobParameters);
-                if (jobExecution.getStatus().isUnsuccessful()){
-                    throw new Exception(String.format("Job %s unsuccessful", jobParameters));
-                }
-            }
+				parametersBuilder.addString("ddlTimeAfter", ddlTimeAfter);
+				parametersBuilder.addString("ddlTimeBefore", ddlTimeBefore);
+				parametersBuilder.addString("ddlTimeIn", ddlTimeIn);
+				JobParameters jobParameters = parametersBuilder.toJobParameters();
+				logger.trace(String.format("Start spring batch job with parameters %s", jobParameters));
+				JobExecution jobExecution = launcher.run(job, jobParameters);
+				// write some log
+				writeJobExecutionStatus(jobExecution, jobParameters);
+				if (jobExecution.getStatus().isUnsuccessful()) {
+					throw new Exception(String.format("Job %s unsuccessful", jobParameters));
+				}
+			}
 
-            logger.info(String.format("Processing schema %s %s completed ", schemaList.size() > 1 ? "list" : "", schemaList));
+			logger.info(String.format("Processing schema %s %s completed ", schemaList.size() > 1 ? "list" : "",
+					schemaList));
 
-            return 1;
+			return 1;
 
-        } catch (Exception e) {
-            String message = "Job Terminated in error: " + e.getMessage();
-            logger.error(message, e);
-            throw e;
-        } finally {
-            if (context != null) {
-                context.close();
-            }
-        }
-    }
+		} catch (Exception e) {
+			String message = "Job Terminated in error: " + e.getMessage();
+			logger.error(message, e);
+			throw e;
+		} finally {
+			if (context != null) {
+				context.close();
+			}
+		}
+	}
 
-    private void writeJobExecutionStatus(JobExecution jobExecution, JobParameters jobParameters) {
-        StepExecution step = jobExecution.getStepExecutions().toArray(new StepExecution[]{})[0];
-        String schemaName = jobParameters.getString("schemaName");
-        logger.info(String.format("Written %d ddls with user objects from total %d in schema %s",
-                step.getWriteCount(), step.getReadCount(), schemaName));
-        logger.info(String.format("Skip processing %d user objects from total %d in schema %s",
-                step.getFilterCount(), step.getReadCount(), schemaName));
-        long seconds = ((step.getEndTime().getTime()-step.getStartTime().getTime())/1000);
-        logger.info(String.format("scheme2ddl of schema %s %s in %d seconds", schemaName, jobExecution.getStatus().toString().toLowerCase(), seconds));
-    }
+	private JobParameters getJobParameters(String schemaName, boolean launchedByDBA) {
+		JobParametersBuilder parametersBuilder = new JobParametersBuilder();
+		parametersBuilder.addString("schemaName", schemaName.toUpperCase());
+		parametersBuilder.addString("launchedByDBA", Boolean.toString(launchedByDBA));
+		return parametersBuilder.toJobParameters();
+	}
 
-    public void setLauncher(JobLauncher launcher) {
-        this.launcher = launcher;
-    }
+	private void writeJobExecutionStatus(JobExecution jobExecution, JobParameters jobParameters) {
+		StepExecution step = jobExecution.getStepExecutions().toArray(new StepExecution[] {})[0];
+		String schemaName = jobParameters.getString("schemaName");
+		logger.info(String.format("Written %d ddls with user objects from total %d in schema %s", step.getWriteCount(),
+				step.getReadCount(), schemaName));
+		logger.info(String.format("Skip processing %d user objects from total %d in schema %s", step.getFilterCount(),
+				step.getReadCount(), schemaName));
+		long seconds = ((step.getEndTime().getTime() - step.getStartTime().getTime()) / 1000);
+		logger.info(String.format("scheme2ddl of schema %s %s in %d seconds", schemaName,
+				jobExecution.getStatus().toString().toLowerCase(), seconds));
+	}
+
+	public void setLauncher(JobLauncher launcher) {
+		this.launcher = launcher;
+	}
 }
